@@ -2,34 +2,35 @@ import * as _ from 'lodash'
 import './style.css'
 
 class Board {
-  private b: Cell[][] = []
+  public b: Cell[][] = []
 
   constructor(public name: string, public width: number, public height: number) {
-    let x: number = 0
+    let y: number = 0
 
-    while (x < width) {
-      let y: number = 0
+    while (y < height) {
+      let x: number = 0
       this.b.push([])
-      while(y < height) {
-        this.b[x].push(new Cell(x, y, false))
-        y++
+      while(x < width) {
+        this.b[y].push(new Cell(y, x, false))
+        x++
       }
-      x++
+      y++
     }
     console.log(`TSetris: ${name} board initialized`)
   }
 
-  enable(x: number, y: number) {
-    this.b[x][y].state = true;
+  enable(y: number, x: number) {
+    this.b[y][x].enable()
   }
 
   draw() {
     console.log('Drawing');
     let _b: any = document.getElementById('board')
-    let x: number = 0
-    while (x < this.width) {
-      let y: number = 0
-      while (y < this.height) {
+    _b.innerHTML = null
+    let y: number = 0
+    while (y < this.height) {
+      let x: number = 0
+      while (x < this.width) {
         let div = document.createElement('div')
         div.id = `${x},${y}`
         div.className = 'cell'
@@ -39,11 +40,11 @@ class Board {
         div.style.border = '1px solid #fff'
         div.style.padding = '0 !important'
         div.style.margin = '0 !important'
-        div.style.background = this.b[x][y].status()
+        div.style.background = this.b[y][x].status()
         _b.appendChild(div)
-        y++
+        x++
       }
-      x++
+      y++
     }
   }
 }
@@ -55,8 +56,16 @@ class Cell {
   private ON_COLOR: string = 'blue'
   private OFF_COLOR: string = 'red'
 
-  constructor(public x: number, public y: number, public state: boolean) {
+  constructor(public y: number, public x: number, public state: boolean) {
     console.log('Building a cell')
+  }
+
+  enable() {
+    this.state = true
+  }
+
+  disable() {
+    this.state = false
   }
 
   status() {
@@ -65,7 +74,7 @@ class Cell {
   }
 }
 
-let t = new Board('Marles', 2, 20)
+let t = new Board('Marles',10, 20)
 t.draw()
-
-// The board prints vertically that's why the coordinate numbers are funky!
+t.enable(8, 5)
+t.draw()
