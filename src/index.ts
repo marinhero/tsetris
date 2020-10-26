@@ -11,7 +11,7 @@ class Board {
       let x: number = 0
       this.b.push([])
       while(x < width) {
-        this.b[y].push(new Cell(y, x, false))
+        this.b[y].push(new Cell(false))
         x++
       }
       y++
@@ -47,6 +47,14 @@ class Board {
       y++
     }
   }
+
+  add(piece: Piece) {
+    for (let y = 0; y < piece.height; y++) {
+      for (let x = 0; x < piece.width; x++) {
+        this.b[y][x] = piece.rotations[0][y][x]
+      }
+    }
+  }
 }
 
 class Cell {
@@ -56,7 +64,7 @@ class Cell {
   private ON_COLOR: string = 'blue'
   private OFF_COLOR: string = 'red'
 
-  constructor(public y: number, public x: number, public state: boolean) {
+  constructor(public state: boolean) {
     console.log('Building a cell')
   }
 
@@ -74,7 +82,76 @@ class Cell {
   }
 }
 
+interface Piece {
+  shape: Cell[][],
+  rotations: Cell[][][],
+  width: number,
+  height: number
+}
+
+function generateRotations(width: number, height: number, piece: Piece) : Cell[][][] {
+  let rots: Cell[][][] = []
+  let nextBase: Cell[][]
+
+  for (let rotationCounter = 0; rotationCounter < 4; rotationCounter++) {
+    rots[rotationCounter] = (new BlankPiece(piece.width, piece.height)).shape
+    let destY = height - 1
+    for (let i = 0; i < height; i++) {
+      let destX = 0
+      for (let j = 0; j < width; j++) {
+        if (!nextBase) {
+          rots[rotationCounter][destY][destX] = piece.shape[j][i]
+        } else  {
+          rots[rotationCounter][destY][destX] = nextBase[j][i]
+        }
+        destX++
+      }
+      destY--
+    }
+    nextBase = rots[rotationCounter]
+  }
+  return rots
+}
+
+class BlankPiece implements Piece {
+  public shape: Cell[][]
+  public rotations: Cell[][][]
+
+  constructor(public width: number, public height: number) {
+    this.shape = []
+    for (let i = 0; i < height; i++) {
+      for (let j = 0; j < width; j++) {
+        if (this.shape[i]) {
+          this.shape[i].push(new Cell(false))
+        } else {
+          this.shape[i] = [new Cell(false)]
+        }
+      }
+    }
+  }
+}
+
+class zPiece implements Piece {
+  public width: number
+  public height: number
+  public rotations: Cell[][][]
+  public shape: Cell[][]
+
+  constructor() {
+    this.width = 3
+    this.height = 3
+    this.shape = [
+      [new Cell(true), new Cell(true), new Cell(false)],
+      [new Cell(false), new Cell(true), new Cell(true)],
+      [new Cell(false), new Cell(false), new Cell(false)]
+    ]
+    this.rotations = generateRotations(3, 3, this)
+    console.log(this.rotations)
+  }
+}
+
 let t = new Board('Marles',10, 20)
 t.draw()
-t.enable(8, 5)
+let z = new zPiece()
+t.add(z)
 t.draw()
