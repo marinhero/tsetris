@@ -48,11 +48,17 @@ class Board {
     }
   }
 
-  add(piece: Piece) {
+  play(piece: Piece) {
+    let ipx: number = 4
+    let ipy: number = 0
+
     for (let y = 0; y < piece.height; y++) {
       for (let x = 0; x < piece.width; x++) {
-        this.b[y][x] = piece.rotations[0][y][x]
+        console.log(`Positioning ${y},${x}`)
+        this.b[y][ipx++] = piece.rotations[0][y][x]
       }
+      ipx = 4
+      ipy = y
     }
   }
 }
@@ -153,5 +159,5 @@ class zPiece implements Piece {
 let t = new Board('Marles',10, 20)
 t.draw()
 let z = new zPiece()
-t.add(z)
+t.play(z)
 t.draw()
