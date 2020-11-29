@@ -15,6 +15,7 @@ body {
 #board {
   align-self: center;
   background: darkseagreen;
+  border: 1px solid black;
   line-height: 0px;
   height: 435px;
   width: 220px;
