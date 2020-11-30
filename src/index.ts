@@ -24,6 +24,9 @@ class Board {
     console.log(`TSetris: ${name} board initialized`)
   }
 
+  getContext() : CanvasRenderingContext2D {
+    return this.context
+  }
 
   draw() {
     console.log('Drawing');
@@ -86,73 +89,79 @@ class Cell {
   }
 }
 
-// interface Piece {
-//   shape: Cell[][],
-//   rotations: Cell[][][],
-//   width: number,
-//   height: number
-// }
+interface Piece {
+  shape: Cell[][],
+  rotations: Cell[][][],
+  width: number,
+  height: number
+}
 
-// function generateRotations(width: number, height: number, piece: Piece) : Cell[][][] {
-//   let rots: Cell[][][] = []
-//   let nextBase: Cell[][]
+function generateRotations(
+  width: number,
+  height: number,
+  piece: Piece,
+  context: CanvasRenderingContext2D
+  ) : Cell[][][] {
+  let rots: Cell[][][] = []
+  let nextBase: Cell[][]
 
-//   for (let rotationCounter = 0; rotationCounter < 4; rotationCounter++) {
-//     rots[rotationCounter] = (new BlankPiece(piece.width, piece.height)).shape
-//     let destY = height - 1
-//     for (let i = 0; i < height; i++) {
-//       let destX = 0
-//       for (let j = 0; j < width; j++) {
-//         if (!nextBase) {
-//           rots[rotationCounter][destY][destX] = piece.shape[j][i]
-//         } else  {
-//           rots[rotationCounter][destY][destX] = nextBase[j][i]
-//         }
-//         destX++
-//       }
-//       destY--
-//     }
-//     nextBase = rots[rotationCounter]
-//   }
-//   return rots
-// }
+  for (let rotationCounter = 0; rotationCounter < 4; rotationCounter++) {
+    rots[rotationCounter] = (new BlankPiece(piece.width, piece.height, context)).shape
+    let destY = height - 1
+    for (let i = 0; i < height; i++) {
+      let destX = 0
+      for (let j = 0; j < width; j++) {
+        if (!nextBase) {
+          rots[rotationCounter][destY][destX] = piece.shape[j][i]
+        } else  {
+          rots[rotationCounter][destY][destX] = nextBase[j][i]
+        }
+        destX++
+      }
+      destY--
+    }
+    nextBase = rots[rotationCounter]
+  }
+  return rots
+}
 
-// class BlankPiece implements Piece {
-//   public shape: Cell[][]
-//   public rotations: Cell[][][]
+class BlankPiece implements Piece {
+  public shape: Cell[][]
+  public rotations: Cell[][][]
 
-//   constructor(public width: number, public height: number) {
-//     this.shape = []
-//     for (let i = 0; i < height; i++) {
-//       for (let j = 0; j < width; j++) {
-//         if (this.shape[i]) {
-//           this.shape[i].push(new Cell(false))
-//         } else {
-//           this.shape[i] = [new Cell(false)]
-//         }
-//       }
-//     }
-//   }
-// }
+  constructor(public width: number, public height: number, public context: CanvasRenderingContext2D) {
+    this.shape = []
+    for (let i = 0; i < height; i++) {
+      for (let j = 0; j < width; j++) {
+        if (this.shape[i]) {
+          this.shape[i].push(new Cell(false, context, 0, 0))
+        } else {
+          this.shape[i] = [new Cell(false, context, 0, 0)]
+        }
+      }
+    }
+  }
+}
 
-// class zPiece implements Piece {
-//   public width: number
-//   public height: number
-//   public rotations: Cell[][][]
-//   public shape: Cell[][]
+class zPiece implements Piece {
+  public width: number
+  public height: number
+  public rotations: Cell[][][]
+  public shape: Cell[][]
 
-//   constructor() {
-//     this.width = 3
-//     this.height = 3
-//     this.shape = [
-//       [new Cell(true), new Cell(true), new Cell(false)],
-//       [new Cell(false), new Cell(true), new Cell(true)],
-//       [new Cell(false), new Cell(false), new Cell(false)]
-//     ]
-//     this.rotations = generateRotations(3, 3, this)
-//     console.log(this.rotations)
-//   }
-// }
+  constructor(public board: Board) {
+    this.width = 3
+    this.height = 3
+    this.shape = [
+      [new Cell(true, board.getContext(), 0, 0), new Cell(true, board.getContext(), 1, 0), new Cell(false, board.getContext(), 2, 0)],
+      [new Cell(false, board.getContext(), 1, 0), new Cell(true, board.getContext(), 1, 1), new Cell(true, board.getContext(), 2, 1)],
+      [new Cell(false, board.getContext(), 2, 0), new Cell(false, board.getContext(), 2, 1), new Cell(false, board.getContext(), 2, 2)]
+    ]
+    this.rotations = generateRotations(3, 3, this, board.getContext())
+    console.log(this.rotations)
+  }
+}
 
 let t = new Board('Marles', 10, 20)
 t.draw()
+let z = new zPiece(t)
