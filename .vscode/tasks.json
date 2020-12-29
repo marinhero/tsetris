@@ -6,7 +6,7 @@
     {
       "label": "Build with WebPack",
       "type": "shell",
-      "command": "npx webpack",
+      "command": "yarn exec webpack",
       "group": "build",
       "presentation": {
         "reveal": "always",
