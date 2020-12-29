@@ -92,8 +92,6 @@ class Cell {
 }
 
 class Piece {
-  public width: number
-  public height: number
   public rotations: Cell[][][]
   public shape: Cell[][]
   public currentRotationIndex: number
@@ -107,23 +105,18 @@ class Piece {
     this.currentRotationIndex = 0
   }
 
-  generateRotations(
-    width: number,
-    height: number,
-    piece: Piece,
-    context: CanvasRenderingContext2D
-  ): Cell[][][] {
+  generateRotations(): Cell[][][] {
     let rots: Cell[][][] = []
     let nextBase: Cell[][]
 
     for (let rotationCounter = 0; rotationCounter < 4; rotationCounter++) {
-      rots[rotationCounter] = (new BlankPiece(piece.width, piece.height, context, this.board)).shape
-      let destY = height - 1
-      for (let i = 0; i < height; i++) {
+      rots[rotationCounter] = (new BlankPiece(this.rows, this.columns, this.board.getContext(), this.board)).shape
+      let destY = this.columns - 1
+      for (let i = 0; i < this.columns; i++) {
         let destX = 0
-        for (let j = 0; j < width; j++) {
+        for (let j = 0; j < this.rows; j++) {
           if (!nextBase) {
-            rots[rotationCounter][destY][destX] = piece.shape[j][i]
+            rots[rotationCounter][destY][destX] = this.shape[j][i]
           } else {
             rots[rotationCounter][destY][destX] = nextBase[j][i]
           }
@@ -141,6 +134,7 @@ class Piece {
     let xOffset: number = this.posX
     let context: CanvasRenderingContext2D = this.board.getContext()
     console.log('Drawing Piece');
+    console.log('Current Rotation:', this.currentRotationIndex)
 
     let y: number = 0
     while (y < this.rows) {
@@ -165,6 +159,12 @@ class Piece {
       }
       y++
     }
+  }
+
+  rotate() {
+    console.log(this.currentRotationIndex)
+    this.currentRotationIndex = (this.currentRotationIndex + 1) % this.rotations.length
+    this.currentRotation = this.rotations[this.currentRotationIndex]
   }
 
   down() {
@@ -209,8 +209,6 @@ class BlankPiece extends Piece {
 }
 
 class zPiece extends Piece {
-  public width: number
-  public height: number
   public rotations: Cell[][][]
   public shape: Cell[][]
   public currentRotationIndex: number
@@ -218,8 +216,6 @@ class zPiece extends Piece {
 
   constructor(public board: Board) {
     super(board)
-    this.width = 3
-    this.height = 3
     this.rows = 3
     this.columns = 3
     this.shape = [
@@ -227,7 +223,7 @@ class zPiece extends Piece {
       [new Cell(false, board.getContext(), 1, 0), new Cell(true, board.getContext(), 1, 1), new Cell(true, board.getContext(), 2, 1)],
       [new Cell(false, board.getContext(), 2, 0), new Cell(false, board.getContext(), 2, 1), new Cell(false, board.getContext(), 2, 2)]
     ]
-    this.rotations = super.generateRotations(3, 3, this, board.getContext())
+    this.rotations = super.generateRotations()
     this.currentRotation = this.rotations[this.currentRotationIndex]
     console.log(this.rotations)
   }
