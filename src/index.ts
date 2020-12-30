@@ -6,7 +6,7 @@ class Board {
   public canvas = <HTMLCanvasElement>document.getElementById('board')
   public context: CanvasRenderingContext2D = this.canvas.getContext('2d')
 
-  constructor(public name: string, public colums: number, public rows: number) {
+  constructor(public name: string, public columns: number, public rows: number) {
     // x = COLUMNS
     // y = ROWS
 
@@ -15,7 +15,7 @@ class Board {
     while (y < rows) {
       let x: number = 0
       this.b.push([])
-      while(x < colums) {
+      while(x < columns) {
         this.b[y].push(new Cell(false, this.context, x, y))
         x++
       }
@@ -34,7 +34,7 @@ class Board {
     let y: number = 0
     while (y < this.rows) {
       let x: number = 0
-      while (x < this.colums) {
+      while (x < this.columns) {
         this.drawCell(x, y)
         x++
       }
@@ -161,6 +161,38 @@ class Piece {
     }
   }
 
+  undraw() {
+    let yOffset: number = this.posY
+    let xOffset: number = this.posX
+    let context: CanvasRenderingContext2D = this.board.getContext()
+    console.log('Drawing Piece');
+    console.log('Current Rotation:', this.currentRotationIndex)
+
+    let y: number = 0
+    while (y < this.rows) {
+      let x: number = 0
+      while (x < this.columns) {
+        context.fillStyle = 'red' 
+        console.log(this.currentRotation[x][y].status());
+        context.fillRect(
+          (xOffset + x) * Cell.CELL_WIDTH,
+          (yOffset + y) * Cell.CELL_HEIGHT,
+          Cell.CELL_WIDTH,
+          Cell.CELL_HEIGHT
+        )
+        context.strokeStyle = Cell.CELL_BORDER_COLOR
+        context.strokeRect(
+          (xOffset + x) * Cell.CELL_WIDTH,
+          (yOffset + y) * Cell.CELL_HEIGHT,
+          Cell.CELL_WIDTH,
+          Cell.CELL_HEIGHT
+        )
+        x++
+      }
+      y++
+    }
+  }
+
   rotate() {
     console.log(this.currentRotationIndex)
     this.currentRotationIndex = (this.currentRotationIndex + 1) % this.rotations.length
@@ -168,19 +200,23 @@ class Piece {
   }
 
   down() {
-
+    if ((this.posY + this.shape.length) <= this.board.rows) {
+      this.posY++
+    }
   }
 
   left() {
-
+    console.log(`MOVE left. POSX: ${this.posX} LIMIT 0`)
+    if (this.posX > 0) {
+      this.posX--
+    }
   }
 
   right() {
-
-  }
-
-  undraw() {
-
+    console.log(`MOVE RIGHT. POSX: ${this.posX} LIMIT ${this.board.columns}`)
+    if (this.posX + this.shape.length < this.board.columns) {
+      this.posX++
+    }
   }
 }
 
@@ -231,5 +267,15 @@ class zPiece extends Piece {
 
 let t = new Board('Marles', 10, 20)
 t.draw()
+
 let z = new zPiece(t)
 z.draw()
+
+// for(let i = 1; i <= 500; i++) {
+//   setTimeout((i) => {
+//     z.rotate()
+//     z.undraw()
+//     z.down()
+//     z.draw()
+//   }, 1000 * i)
+// }
