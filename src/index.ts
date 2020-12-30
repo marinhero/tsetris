@@ -172,7 +172,7 @@ class Piece {
     while (y < this.rows) {
       let x: number = 0
       while (x < this.columns) {
-        context.fillStyle = 'red' 
+        context.fillStyle = 'red'
         console.log(this.currentRotation[x][y].status());
         context.fillRect(
           (xOffset + x) * Cell.CELL_WIDTH,
@@ -270,10 +270,38 @@ t.draw()
 
 let z = new zPiece(t)
 z.draw()
+let activePiece: Piece = z
+
+document.addEventListener('keydown', (event) => {
+  console.log(event.key)
+  switch(event.key) {
+    case 'ArrowUp':
+      activePiece.undraw()
+      activePiece.rotate()
+      activePiece.draw()
+      break
+    case 'ArrowDown':
+      activePiece.undraw()
+      activePiece.down()
+      activePiece.draw()
+      break
+    case 'ArrowLeft':
+      activePiece.undraw()
+      activePiece.left()
+      activePiece.draw()
+      break
+    case 'ArrowRight':
+      activePiece.undraw()
+      activePiece.right()
+      activePiece.draw()
+      break
+    default:
+     return
+  }
+})
 
 // for(let i = 1; i <= 500; i++) {
 //   setTimeout((i) => {
-//     z.rotate()
 //     z.undraw()
 //     z.down()
 //     z.draw()
