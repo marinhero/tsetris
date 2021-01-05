@@ -186,13 +186,14 @@ class Piece {
   rotate() {
     let nextIndex: number = (this.currentRotationIndex + 1) % this.rotations.length
 
-    if (!this.colllision(this.posX, this.posY, this.rotations[nextIndex])) {
+    if (!this.collision(this.posX, this.posY, this.rotations[nextIndex])) {
       this.currentRotationIndex = nextIndex
       this.currentRotation = this.rotations[this.currentRotationIndex]
     }
   }
 
-  colllision(newX: number, newY: number, rotation: Cell[][]): boolean {
+  // I suspect this can be fixed with changing the way draw() works. I don't think I should paint the empty cells of each piece.
+  collision(newX: number, newY: number, rotation: Cell[][]): boolean {
     for (let y: number = 0; y < this.rows; y++) {
       for (let x: number = 0; x < this.columns; x++) {
         let currentCell = rotation[x][y]
@@ -210,25 +211,25 @@ class Piece {
   }
 
   down() {
-    if (!this.colllision(this.posX, this.posY + 1, this.currentRotation)) {
+    if (!this.collision(this.posX, this.posY + 1, this.currentRotation)) {
       this.posY++
     }
   }
 
   left() {
-    if (!this.colllision(this.posX - 1, this.posY, this.currentRotation)) {
+    if (!this.collision(this.posX - 1, this.posY, this.currentRotation)) {
       this.posX--
     }
   }
 
   right() {
-    if (!this.colllision(this.posX + 1, this.posY, this.currentRotation)) {
+    if (!this.collision(this.posX + 1, this.posY, this.currentRotation)) {
       this.posX++
     }
   }
 
   bottom() {
-    return this.colllision(this.posX, this.posY + 1, this.currentRotation)
+    return this.collision(this.posX, this.posY + 1, this.currentRotation)
   }
 }
 
