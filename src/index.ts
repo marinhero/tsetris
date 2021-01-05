@@ -21,7 +21,6 @@ class Board {
       }
       y++
     }
-    console.log(`TSetris: ${name} board initialized`)
   }
 
   getContext() : CanvasRenderingContext2D {
@@ -29,8 +28,6 @@ class Board {
   }
 
   draw() {
-    console.log('Drawing');
-
     let y: number = 0
     while (y < this.rows) {
       let x: number = 0
@@ -75,7 +72,6 @@ class Cell {
     public context: CanvasRenderingContext2D,
     public posX: number,
     public posY: number) {
-    console.log('Building a cell')
   }
 
   enable() {
@@ -97,7 +93,7 @@ class Piece {
   public currentRotationIndex: number
   public currentRotation: Cell[][]
   public posX: number = 3
-  public posY: number = 2 // So it starts hidden and out of the board
+  public posY: number = 0 // So it starts hidden and out of the board
   public rows: number
   public columns: number
 
@@ -133,15 +129,12 @@ class Piece {
     let yOffset: number = this.posY
     let xOffset: number = this.posX
     let context: CanvasRenderingContext2D = this.board.getContext()
-    console.log('Drawing Piece');
-    console.log('Current Rotation:', this.currentRotationIndex)
 
     let y: number = 0
     while (y < this.rows) {
       let x: number = 0
       while (x < this.columns) {
         context.fillStyle = this.currentRotation[x][y].status()
-        console.log(this.currentRotation[x][y].status());
         context.fillRect(
           (xOffset + x) * Cell.CELL_WIDTH,
           (yOffset + y) * Cell.CELL_HEIGHT,
@@ -165,15 +158,12 @@ class Piece {
     let yOffset: number = this.posY
     let xOffset: number = this.posX
     let context: CanvasRenderingContext2D = this.board.getContext()
-    console.log('Drawing Piece');
-    console.log('Current Rotation:', this.currentRotationIndex)
 
     let y: number = 0
     while (y < this.rows) {
       let x: number = 0
       while (x < this.columns) {
         context.fillStyle = 'red'
-        console.log(this.currentRotation[x][y].status());
         context.fillRect(
           (xOffset + x) * Cell.CELL_WIDTH,
           (yOffset + y) * Cell.CELL_HEIGHT,
@@ -194,29 +184,51 @@ class Piece {
   }
 
   rotate() {
-    console.log(this.currentRotationIndex)
-    this.currentRotationIndex = (this.currentRotationIndex + 1) % this.rotations.length
-    this.currentRotation = this.rotations[this.currentRotationIndex]
+    let nextIndex: number = (this.currentRotationIndex + 1) % this.rotations.length
+
+    if (!this.colllision(this.posX, this.posY, this.rotations[nextIndex])) {
+      this.currentRotationIndex = nextIndex
+      this.currentRotation = this.rotations[this.currentRotationIndex]
+    }
+  }
+
+  colllision(newX: number, newY: number, rotation: Cell[][]): boolean {
+    for (let y: number = 0; y < this.rows; y++) {
+      for (let x: number = 0; x < this.columns; x++) {
+        let currentCell = rotation[x][y]
+        let emptyCell: boolean = currentCell.status() == 'red'
+
+        if (emptyCell) { continue }
+
+        let leftOverflow: boolean = newX + x < 0
+        let bottomOverflow: boolean = newY + y > this.board.rows - 1
+        let rightOverflow: boolean = newX + x > this.board.columns - 1
+        if (rightOverflow || leftOverflow || bottomOverflow) { return true }
+      }
+    }
+    return false
   }
 
   down() {
-    if ((this.posY + this.shape.length) <= this.board.rows) {
+    if (!this.colllision(this.posX, this.posY + 1, this.currentRotation)) {
       this.posY++
     }
   }
 
   left() {
-    console.log(`MOVE left. POSX: ${this.posX} LIMIT 0`)
-    if (this.posX > 0) {
+    if (!this.colllision(this.posX - 1, this.posY, this.currentRotation)) {
       this.posX--
     }
   }
 
   right() {
-    console.log(`MOVE RIGHT. POSX: ${this.posX} LIMIT ${this.board.columns}`)
-    if (this.posX + this.shape.length < this.board.columns) {
+    if (!this.colllision(this.posX + 1, this.posY, this.currentRotation)) {
       this.posX++
     }
+  }
+
+  bottom() {
+    return this.colllision(this.posX, this.posY + 1, this.currentRotation)
   }
 }
 
@@ -261,19 +273,17 @@ class zPiece extends Piece {
     ]
     this.rotations = super.generateRotations()
     this.currentRotation = this.rotations[this.currentRotationIndex]
-    console.log(this.rotations)
   }
 }
 
 let t = new Board('Marles', 10, 20)
 t.draw()
 
-let z = new zPiece(t)
+var z = new zPiece(t)
 z.draw()
 let activePiece: Piece = z
 
 document.addEventListener('keydown', (event) => {
-  console.log(event.key)
   switch(event.key) {
     case 'ArrowUp':
       activePiece.undraw()
@@ -284,6 +294,11 @@ document.addEventListener('keydown', (event) => {
       activePiece.undraw()
       activePiece.down()
       activePiece.draw()
+      if (activePiece.bottom()) {
+        console.log('LOCK')
+        activePiece = new zPiece(t)
+        activePiece.draw()
+      }
       break
     case 'ArrowLeft':
       activePiece.undraw()
