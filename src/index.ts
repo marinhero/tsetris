@@ -134,20 +134,22 @@ class Piece {
     while (y < this.rows) {
       let x: number = 0
       while (x < this.columns) {
-        context.fillStyle = this.currentRotation[x][y].status()
-        context.fillRect(
-          (xOffset + x) * Cell.CELL_WIDTH,
-          (yOffset + y) * Cell.CELL_HEIGHT,
-          Cell.CELL_WIDTH,
-          Cell.CELL_HEIGHT
-        )
-        context.strokeStyle = Cell.CELL_BORDER_COLOR
-        context.strokeRect(
-          (xOffset + x) * Cell.CELL_WIDTH,
-          (yOffset + y) * Cell.CELL_HEIGHT,
-          Cell.CELL_WIDTH,
-          Cell.CELL_HEIGHT
-        )
+        if (this.currentRotation[x][y].state) {
+          context.fillStyle = this.currentRotation[x][y].status()
+          context.fillRect(
+            (xOffset + x) * Cell.CELL_WIDTH,
+            (yOffset + y) * Cell.CELL_HEIGHT,
+            Cell.CELL_WIDTH,
+            Cell.CELL_HEIGHT
+          )
+          context.strokeStyle = Cell.CELL_BORDER_COLOR
+          context.strokeRect(
+            (xOffset + x) * Cell.CELL_WIDTH,
+            (yOffset + y) * Cell.CELL_HEIGHT,
+            Cell.CELL_WIDTH,
+            Cell.CELL_HEIGHT
+          )
+        }
         x++
       }
       y++
@@ -163,20 +165,22 @@ class Piece {
     while (y < this.rows) {
       let x: number = 0
       while (x < this.columns) {
-        context.fillStyle = 'red'
-        context.fillRect(
-          (xOffset + x) * Cell.CELL_WIDTH,
-          (yOffset + y) * Cell.CELL_HEIGHT,
-          Cell.CELL_WIDTH,
-          Cell.CELL_HEIGHT
-        )
-        context.strokeStyle = Cell.CELL_BORDER_COLOR
-        context.strokeRect(
-          (xOffset + x) * Cell.CELL_WIDTH,
-          (yOffset + y) * Cell.CELL_HEIGHT,
-          Cell.CELL_WIDTH,
-          Cell.CELL_HEIGHT
-        )
+        if (this.currentRotation[x][y].state) {
+          context.fillStyle = 'red'
+          context.fillRect(
+            (xOffset + x) * Cell.CELL_WIDTH,
+            (yOffset + y) * Cell.CELL_HEIGHT,
+            Cell.CELL_WIDTH,
+            Cell.CELL_HEIGHT
+          )
+          context.strokeStyle = Cell.CELL_BORDER_COLOR
+          context.strokeRect(
+            (xOffset + x) * Cell.CELL_WIDTH,
+            (yOffset + y) * Cell.CELL_HEIGHT,
+            Cell.CELL_WIDTH,
+            Cell.CELL_HEIGHT
+          )
+        }
         x++
       }
       y++
@@ -192,7 +196,6 @@ class Piece {
     }
   }
 
-  // I suspect this can be fixed with changing the way draw() works. I don't think I should paint the empty cells of each piece.
   collision(newX: number, newY: number, rotation: Cell[][]): boolean {
     for (let y: number = 0; y < this.rows; y++) {
       for (let x: number = 0; x < this.columns; x++) {
