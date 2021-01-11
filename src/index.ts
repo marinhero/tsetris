@@ -135,6 +135,8 @@ class Piece {
       let x: number = 0
       while (x < this.columns) {
         if (this.currentRotation[x][y].state) {
+          this.board.b[this.posY + y][this.posX + x].state = true
+          console.log(`Painting ${this.posX}, ${this.posY}`)
           context.fillStyle = this.currentRotation[x][y].status()
           context.fillRect(
             (xOffset + x) * Cell.CELL_WIDTH,
@@ -201,8 +203,12 @@ class Piece {
       for (let x: number = 0; x < this.columns; x++) {
         let currentCell = rotation[x][y]
         let emptyCell: boolean = currentCell.status() == 'red'
-
         if (emptyCell) { continue }
+
+        // It mostly works but the piece is colliding with itself...
+        let lockedPiece: Cell = this.board.b[newY][newX]
+        console.log(`${newX}, ${newY} => ${lockedPiece.state}`)
+        if (lockedPiece.state) { return true }
 
         let leftOverflow: boolean = newX + x < 0
         let bottomOverflow: boolean = newY + y > this.board.rows - 1
@@ -210,7 +216,6 @@ class Piece {
         if (rightOverflow || leftOverflow || bottomOverflow) { return true }
       }
     }
-    return false
   }
 
   down() {
