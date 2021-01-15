@@ -198,22 +198,23 @@ class Piece {
     }
   }
 
-  collision(newX: number, newY: number, rotation: Cell[][]): boolean {
+  collision(currentX: number, currentY: number, rotation: Cell[][]): boolean {
     for (let y: number = 0; y < this.rows; y++) {
       for (let x: number = 0; x < this.columns; x++) {
         let currentCell = rotation[x][y]
-        let emptyCell: boolean = currentCell.status() == 'red'
+        let emptyCell: boolean = currentCell.state == false
+        let positionXOfCelInBoard: number = currentCell.posX + x
+        let positionYOfCelInBoard: number = currentCell.posY + y
+
+        // You need to calculate the future positions of the cells in order to know if there's already a piece in there.
+
         if (emptyCell) { continue }
 
-        // It mostly works but the piece is colliding with itself...
-        let lockedPiece: Cell = this.board.b[newY][newX]
-        console.log(`${newX}, ${newY} => ${lockedPiece.state}`)
-        if (lockedPiece.state) { return true }
-
-        let leftOverflow: boolean = newX + x < 0
-        let bottomOverflow: boolean = newY + y > this.board.rows - 1
-        let rightOverflow: boolean = newX + x > this.board.columns - 1
+        let leftOverflow: boolean = currentX + x < 0
+        let bottomOverflow: boolean = currentY + y > this.board.rows - 1
+        let rightOverflow: boolean = currentX + x > this.board.columns - 1
         if (rightOverflow || leftOverflow || bottomOverflow) { return true }
+
       }
     }
   }
