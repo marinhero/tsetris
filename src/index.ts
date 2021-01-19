@@ -219,10 +219,13 @@ class Piece {
     }
   }
 
-  down() {
+  down(): boolean {
     if (!this.collision(this.posX, this.posY + 1, this.currentRotation)) {
       this.posY++
+    } else {
+      return true
     }
+    return false
   }
 
   left() {
@@ -237,8 +240,18 @@ class Piece {
     }
   }
 
-  bottom() {
-    return this.collision(this.posX, this.posY + 1, this.currentRotation)
+  lock() {
+    let y: number = 0
+    while (y < this.rows) {
+      let x: number = 0
+      while (x < this.columns) {
+        if (this.currentRotation[x][y].state) {
+          this.board.b[this.posY + y][this.posX + x].state = true
+        }
+        x++
+      }
+      y++
+    }
   }
 }
 
@@ -274,6 +287,7 @@ class zPiece extends Piece {
 
   constructor(public board: Board) {
     super(board)
+    console.log(board)
     this.rows = 3
     this.columns = 3
     this.shape = [
@@ -302,13 +316,11 @@ document.addEventListener('keydown', (event) => {
       break
     case 'ArrowDown':
       activePiece.undraw()
-      activePiece.down()
-      activePiece.draw()
-      if (activePiece.bottom()) {
+      if (activePiece.down()) {
         console.log('LOCK')
         activePiece = new zPiece(t)
-        activePiece.draw()
       }
+      activePiece.draw()
       break
     case 'ArrowLeft':
       activePiece.undraw()
