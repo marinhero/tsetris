@@ -6,7 +6,7 @@ class Board {
   public canvas = <HTMLCanvasElement>document.getElementById('board')
   public context: CanvasRenderingContext2D = this.canvas.getContext('2d')
 
-  constructor(public name: string, public columns: number, public rows: number) {
+  constructor(public columns: number, public rows: number) {
     // x = COLUMNS
     // y = ROWS
 
@@ -32,30 +32,12 @@ class Board {
     while (y < this.rows) {
       let x: number = 0
       while (x < this.columns) {
-        this.drawCell(x, y)
+        let c: Cell = this.b[y][x]
+        c.draw(x, y, Cell.OFF_COLOR)
         x++
       }
       y++
     }
-  }
-
-  drawCell(posX: number, posY: number) {
-    let c: Cell = this.b[posY][posX]
-
-    this.context.fillStyle = c.status()
-    this.context.fillRect(
-      posX * Cell.CELL_WIDTH,
-      posY * Cell.CELL_HEIGHT,
-      Cell.CELL_WIDTH,
-      Cell.CELL_HEIGHT
-    )
-    this.context.strokeStyle = Cell.CELL_BORDER_COLOR
-    this.context.strokeRect(
-      posX * Cell.CELL_WIDTH,
-      posY * Cell.CELL_HEIGHT,
-      Cell.CELL_WIDTH,
-      Cell.CELL_HEIGHT
-    )
   }
 }
 
@@ -63,15 +45,15 @@ class Cell {
   static CELL_WIDTH: number = 20
   static CELL_HEIGHT: number = 20
   static CELL_BORDER_COLOR: string = 'black'
-
-  private ON_COLOR: string = 'blue'
-  private OFF_COLOR: string = 'red'
+  static OFF_COLOR: string = 'white'
+  static ON_COLOR: string = 'blue'
 
   constructor(
     public state: boolean,
     public context: CanvasRenderingContext2D,
     public posX: number,
-    public posY: number) {
+    public posY: number,
+    public onColor: string = Cell.ON_COLOR) {
   }
 
   enable() {
@@ -82,8 +64,21 @@ class Cell {
     this.state = false
   }
 
-  status() {
-    return this.state ? this.ON_COLOR : this.OFF_COLOR
+  draw(x: number = this.posX, y: number = this.posY, color: string = this.onColor) {
+    this.context.fillStyle = color
+    this.context.fillRect(
+      x * Cell.CELL_WIDTH,
+      y * Cell.CELL_HEIGHT,
+      Cell.CELL_WIDTH,
+      Cell.CELL_HEIGHT
+    )
+    this.context.strokeStyle = Cell.CELL_BORDER_COLOR
+    this.context.strokeRect(
+      x * Cell.CELL_WIDTH,
+      y * Cell.CELL_HEIGHT,
+      Cell.CELL_WIDTH,
+      Cell.CELL_HEIGHT
+    )
   }
 }
 
@@ -96,6 +91,14 @@ class Piece {
   public posY: number = 0 // So it starts hidden and out of the board
   public rows: number
   public columns: number
+  public onColor: string
+
+  static randomPiece(board: Board): Piece {
+    let pieces = [IPiece, ZPiece, LPiece, OPiece, TPiece]
+    let piece = _.sample(pieces)
+
+    return new piece(board)
+  }
 
   constructor(public board: Board) {
     this.currentRotationIndex = 0
@@ -106,7 +109,7 @@ class Piece {
     let nextBase: Cell[][]
 
     for (let rotationCounter = 0; rotationCounter < 4; rotationCounter++) {
-      rots[rotationCounter] = (new BlankPiece(this.rows, this.columns, this.board.getContext(), this.board)).shape
+      rots[rotationCounter] = new BlankPiece(this.rows, this.columns).shape
       let destY = this.columns - 1
       for (let i = 0; i < this.columns; i++) {
         let destX = 0
@@ -126,66 +129,26 @@ class Piece {
   }
 
   draw() {
-    let yOffset: number = this.posY
-    let xOffset: number = this.posX
-    let context: CanvasRenderingContext2D = this.board.getContext()
-
-    let y: number = 0
-    while (y < this.rows) {
-      let x: number = 0
-      while (x < this.columns) {
+    for (let y = 0; y < this.rows; y++) {
+      for (let x = 0; x < this.columns; x++) {
         if (this.currentRotation[x][y].state) {
-          this.board.b[this.posY + y][this.posX + x].state = true
-          console.log(`Painting ${this.posX}, ${this.posY}`)
-          context.fillStyle = this.currentRotation[x][y].status()
-          context.fillRect(
-            (xOffset + x) * Cell.CELL_WIDTH,
-            (yOffset + y) * Cell.CELL_HEIGHT,
-            Cell.CELL_WIDTH,
-            Cell.CELL_HEIGHT
-          )
-          context.strokeStyle = Cell.CELL_BORDER_COLOR
-          context.strokeRect(
-            (xOffset + x) * Cell.CELL_WIDTH,
-            (yOffset + y) * Cell.CELL_HEIGHT,
-            Cell.CELL_WIDTH,
-            Cell.CELL_HEIGHT
-          )
+          let c: Cell = this.board.b[this.posY + y][this.posX + x]
+          c.enable()
+          c.draw(this.posX + x, this.posY + y, this.onColor)
         }
-        x++
       }
-      y++
     }
   }
 
   undraw() {
-    let yOffset: number = this.posY
-    let xOffset: number = this.posX
-    let context: CanvasRenderingContext2D = this.board.getContext()
-
-    let y: number = 0
-    while (y < this.rows) {
-      let x: number = 0
-      while (x < this.columns) {
+    for (let y = 0; y < this.rows; y++) {
+      for (let x = 0; x < this.columns; x++) {
         if (this.currentRotation[x][y].state) {
-          context.fillStyle = 'red'
-          context.fillRect(
-            (xOffset + x) * Cell.CELL_WIDTH,
-            (yOffset + y) * Cell.CELL_HEIGHT,
-            Cell.CELL_WIDTH,
-            Cell.CELL_HEIGHT
-          )
-          context.strokeStyle = Cell.CELL_BORDER_COLOR
-          context.strokeRect(
-            (xOffset + x) * Cell.CELL_WIDTH,
-            (yOffset + y) * Cell.CELL_HEIGHT,
-            Cell.CELL_WIDTH,
-            Cell.CELL_HEIGHT
-          )
+          let c: Cell = this.board.b[this.posY + y][this.posX + x]
+          c.disable()
+          c.draw(this.posX + x, this.posY + y, Cell.OFF_COLOR)
         }
-        x++
       }
-      y++
     }
   }
 
@@ -203,18 +166,19 @@ class Piece {
       for (let x: number = 0; x < this.columns; x++) {
         let currentCell = rotation[x][y]
         let emptyCell: boolean = currentCell.state == false
-        let positionXOfCelInBoard: number = currentCell.posX + x
-        let positionYOfCelInBoard: number = currentCell.posY + y
-
-        // You need to calculate the future positions of the cells in order to know if there's already a piece in there.
 
         if (emptyCell) { continue }
 
         let leftOverflow: boolean = currentX + x < 0
         let bottomOverflow: boolean = currentY + y > this.board.rows - 1
         let rightOverflow: boolean = currentX + x > this.board.columns - 1
+
         if (rightOverflow || leftOverflow || bottomOverflow) { return true }
 
+        let positionXOfCelInBoard: number = currentX + x
+        let positionYOfCelInBoard: number = currentY + y
+
+        if (this.board.b[positionYOfCelInBoard][positionXOfCelInBoard].state) { return true }
       }
     }
   }
@@ -252,6 +216,18 @@ class Piece {
       }
       y++
     }
+    this.draw()
+  }
+
+  shapeGenerator(bShape: boolean[][]): Cell[][] {
+    let shape: Cell[][] = []
+    for (let y = 0; y < this.rows; y++) {
+      for (let x = 0; x < this.columns; x++) {
+        if (_.isEmpty(shape[y])) { shape[y] = [] }
+        shape[y][x] = new Cell(bShape[y][x], this.board.getContext(), x, y, this.onColor)
+      }
+    }
+    return shape
   }
 }
 
@@ -261,51 +237,147 @@ class BlankPiece extends Piece {
 
   constructor(
     public width: number,
-    public height: number,
-    public context: CanvasRenderingContext2D,
-    public board: Board
+    public height: number
   ) {
-    super(board)
+    super(<Board> null)
     this.shape = []
     for (let i = 0; i < height; i++) {
       for (let j = 0; j < width; j++) {
-        if (this.shape[i]) {
-          this.shape[i].push(new Cell(false, context, 0, 0))
-        } else {
-          this.shape[i] = [new Cell(false, context, 0, 0)]
-        }
+        if (_.isEmpty(this.shape[i])) { this.shape[i] = [] }
+        this.shape[i].push(new Cell(false, <CanvasRenderingContext2D> null, 0, 0))
       }
     }
   }
 }
 
-class zPiece extends Piece {
+class ZPiece extends Piece {
   public rotations: Cell[][][]
   public shape: Cell[][]
   public currentRotationIndex: number
   public currentRotation: Cell[][]
+  public onColor: string = 'green'
 
   constructor(public board: Board) {
     super(board)
     console.log(board)
     this.rows = 3
     this.columns = 3
-    this.shape = [
-      [new Cell(true, board.getContext(), 0, 0), new Cell(true, board.getContext(), 1, 0), new Cell(false, board.getContext(), 2, 0)],
-      [new Cell(false, board.getContext(), 1, 0), new Cell(true, board.getContext(), 1, 1), new Cell(true, board.getContext(), 2, 1)],
-      [new Cell(false, board.getContext(), 2, 0), new Cell(false, board.getContext(), 2, 1), new Cell(false, board.getContext(), 2, 2)]
-    ]
+    //  Must set shapes before handling rotations
+    this.shape =
+      this.shapeGenerator(
+        [
+          [true, true, false],
+          [false, true, true],
+          [false, false, false]
+        ]
+      )
     this.rotations = super.generateRotations()
     this.currentRotation = this.rotations[this.currentRotationIndex]
   }
 }
 
-let t = new Board('Marles', 10, 20)
+class IPiece extends Piece {
+  public rotations: Cell[][][]
+  public shape: Cell[][]
+  public currentRotationIndex: number
+  public currentRotation: Cell[][]
+  public onColor: string = 'brown'
+
+  constructor(public board: Board) {
+    super(board)
+    this.rows = 4
+    this.columns = 4
+    this.shape =
+      this.shapeGenerator(
+        [
+          [false, true, false, false],
+          [false, true, false, false],
+          [false, true, false, false],
+          [false, true, false, false],
+        ]
+      )
+    this.rotations = super.generateRotations()
+    this.currentRotation = this.rotations[this.currentRotationIndex]
+  }
+}
+
+class LPiece extends Piece {
+  public rotations: Cell[][][]
+  public shape: Cell[][]
+  public currentRotationIndex: number
+  public currentRotation: Cell[][]
+  public onColor: string = 'pink'
+
+  constructor(public board: Board) {
+    super(board)
+    this.rows = 3
+    this.columns = 3
+    this.shape =
+      this.shapeGenerator(
+        [
+          [false, true, false],
+          [false, true, false],
+          [false, true, true],
+        ]
+      )
+    this.rotations = super.generateRotations()
+    this.currentRotation = this.rotations[this.currentRotationIndex]
+  }
+}
+
+class OPiece extends Piece {
+  public rotations: Cell[][][]
+  public shape: Cell[][]
+  public currentRotationIndex: number
+  public currentRotation: Cell[][]
+  public onColor: string = 'orange'
+
+  constructor(public board: Board) {
+    super(board)
+    this.rows = 2
+    this.columns = 2
+    this.shape =
+      this.shapeGenerator(
+        [
+          [true, true],
+          [true, true],
+        ]
+      )
+    this.rotations = super.generateRotations()
+    this.currentRotation = this.rotations[this.currentRotationIndex]
+  }
+}
+
+class TPiece extends Piece {
+  public rotations: Cell[][][]
+  public shape: Cell[][]
+  public currentRotationIndex: number
+  public currentRotation: Cell[][]
+  public onColor: string = 'purple'
+
+  constructor(public board: Board) {
+    super(board)
+    this.rows = 3
+    this.columns = 3
+    this.shape =
+      this.shapeGenerator(
+        [
+          [true, true, true],
+          [false, true, false],
+          [false, false, false],
+        ]
+      )
+    this.rotations = super.generateRotations()
+    this.currentRotation = this.rotations[this.currentRotationIndex]
+  }
+}
+
+let t = new Board(10, 20)
 t.draw()
 
-var z = new zPiece(t)
-z.draw()
-let activePiece: Piece = z
+var p = Piece.randomPiece(t)
+p.draw()
+let activePiece: Piece = p
 
 document.addEventListener('keydown', (event) => {
   switch(event.key) {
@@ -317,8 +389,8 @@ document.addEventListener('keydown', (event) => {
     case 'ArrowDown':
       activePiece.undraw()
       if (activePiece.down()) {
-        console.log('LOCK')
-        activePiece = new zPiece(t)
+        activePiece.lock()
+        activePiece = Piece.randomPiece(t)
       }
       activePiece.draw()
       break
@@ -336,11 +408,3 @@ document.addEventListener('keydown', (event) => {
      return
   }
 })
-
-// for(let i = 1; i <= 500; i++) {
-//   setTimeout((i) => {
-//     z.undraw()
-//     z.down()
-//     z.draw()
-//   }, 1000 * i)
-// }
