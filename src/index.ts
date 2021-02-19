@@ -5,6 +5,7 @@ class Board {
   public b: Cell[][] = []
   public canvas = <HTMLCanvasElement>document.getElementById('board')
   public context: CanvasRenderingContext2D = this.canvas.getContext('2d')
+  public score: number = 0
 
   constructor(public columns: number, public rows: number) {
     // x = COLUMNS
@@ -33,10 +34,52 @@ class Board {
       let x: number = 0
       while (x < this.columns) {
         let c: Cell = this.b[y][x]
-        c.draw(x, y, Cell.OFF_COLOR)
+        let color: string = c.state ? c.onColor : Cell.OFF_COLOR
+        c.draw(x, y, color)
         x++
       }
       y++
+    }
+  }
+
+   // The super piece bug isn't exclusive to when tetris happens
+   // out of nowhere after locking a piece will shoot all the way up
+   // It doesn't happen all the time but it consistently happens around the 120 point mark
+   // Maybe set the debugger after lock and see what happens?
+   // I see a lot of "blue" && true pieces without the need of them for being there.
+   // The brown y values of the last game don't go beyond 5
+
+  copyFrom(ref: number) {
+    for (; ref > 1; ref--) {
+      for(let x: number = 0; x < this.columns; x++) {
+        if (this.b[ref][x].state) {
+          console.log(this.b[ref][x])
+        }
+        this.b[ref][x] = this.b[ref - 1][x]
+      }
+    }
+    for (let x: number = 0; x < this.columns; x++) {
+      this.b[0][x] = new Cell(false, this.context, x, 0)
+    }
+  }
+
+  updateScore() {
+    this.score = this.score + 10
+    let scoreboard: HTMLElement = document.getElementById('metric')
+    scoreboard.innerHTML = this.score.toString()
+  }
+
+  checkLines() {
+    for (let y: number = 0; y < this.rows; y++) {
+      let tetris: boolean = true
+      for (let x: number = 0; x < this.columns; x++) {
+       tetris = tetris && this.b[y][x].state
+      }
+      if (tetris) {
+        this.copyFrom(y)
+        this.updateScore()
+        this.draw()
+      }
     }
   }
 }
@@ -204,19 +247,21 @@ class Piece {
     }
   }
 
+  // Something smells bad aboout this function.
+  // You iterate through the entire board but never go beyond que position of the pieces
   lock() {
-    let y: number = 0
-    while (y < this.rows) {
-      let x: number = 0
-      while (x < this.columns) {
+    console.log(this.currentRotation)
+    for (let y:number = 0; y < this.rows; y++) {
+      for (let x: number = 0; x < this.columns; x++) {
         if (this.currentRotation[x][y].state) {
-          this.board.b[this.posY + y][this.posX + x].state = true
+          let c: Cell = this.board.b[this.posY + y][this.posX + x]
+          c.state = true
+          c.onColor = this.currentRotation[x][y].onColor
         }
-        x++
       }
-      y++
     }
-    this.draw()
+    this.board.checkLines()
+    this.board.draw()
   }
 
   shapeGenerator(bShape: boolean[][]): Cell[][] {
@@ -259,7 +304,6 @@ class ZPiece extends Piece {
 
   constructor(public board: Board) {
     super(board)
-    console.log(board)
     this.rows = 3
     this.columns = 3
     //  Must set shapes before handling rotations
@@ -389,6 +433,7 @@ document.addEventListener('keydown', (event) => {
     case 'ArrowDown':
       activePiece.undraw()
       if (activePiece.down()) {
+        console.log(activePiece)
         activePiece.lock()
         activePiece = Piece.randomPiece(t)
       }
@@ -408,3 +453,8 @@ document.addEventListener('keydown', (event) => {
      return
   }
 })
+
+// Todo: Start deleting rows when a line happens!
+// Todo: Define scoreboard
+// Todo: Make game loop
+// Todo: Detect gameover
