@@ -454,7 +454,5 @@ document.addEventListener('keydown', (event) => {
   }
 })
 
-// Todo: Start deleting rows when a line happens!
-// Todo: Define scoreboard
 // Todo: Make game loop
 // Todo: Detect gameover
