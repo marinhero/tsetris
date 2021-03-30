@@ -42,19 +42,9 @@ class Board {
     }
   }
 
-   // The super piece bug isn't exclusive to when tetris happens
-   // out of nowhere after locking a piece will shoot all the way up
-   // It doesn't happen all the time but it consistently happens around the 120 point mark
-   // Maybe set the debugger after lock and see what happens?
-   // I see a lot of "blue" && true pieces without the need of them for being there.
-   // The brown y values of the last game don't go beyond 5
-
   copyFrom(ref: number) {
-    for (; ref > 1; ref--) {
+    for (; ref >= 1; ref--) {
       for(let x: number = 0; x < this.columns; x++) {
-        if (this.b[ref][x].state) {
-          console.log(this.b[ref][x])
-        }
         this.b[ref][x] = this.b[ref - 1][x]
       }
     }
@@ -78,7 +68,6 @@ class Board {
       if (tetris) {
         this.copyFrom(y)
         this.updateScore()
-        this.draw()
       }
     }
   }
@@ -247,10 +236,7 @@ class Piece {
     }
   }
 
-  // Something smells bad aboout this function.
-  // You iterate through the entire board but never go beyond que position of the pieces
   lock() {
-    console.log(this.currentRotation)
     for (let y:number = 0; y < this.rows; y++) {
       for (let x: number = 0; x < this.columns; x++) {
         if (this.currentRotation[x][y].state) {
@@ -433,9 +419,8 @@ document.addEventListener('keydown', (event) => {
     case 'ArrowDown':
       activePiece.undraw()
       if (activePiece.down()) {
-        console.log(activePiece)
         activePiece.lock()
-        activePiece = Piece.randomPiece(t)
+        activePiece = Piece.randomPiece(t) // Pieces are not aware of each other?
       }
       activePiece.draw()
       break
