@@ -1,6 +1,7 @@
 node_modules
 .idea
 dist/*.js
+dist/*.txt
 *.d.*
 *.map
 dist/src
