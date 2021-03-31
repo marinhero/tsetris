@@ -216,6 +216,13 @@ class Piece {
   }
 
   down(): boolean {
+    if (this.collision(this.posX, this.posY + 1, this.currentRotation) && this.posY == 0) {
+      clearInterval(Game.interval);
+      if (confirm('Game over! Try again?')) {
+        window.location.reload()
+      }
+    }
+
     if (!this.collision(this.posX, this.posY + 1, this.currentRotation)) {
       this.posY++
     } else {
@@ -402,6 +409,17 @@ class TPiece extends Piece {
   }
 }
 
+class Game {
+  static interval = setInterval(() => {
+    activePiece.undraw()
+    if (activePiece.down()) {
+      activePiece.lock()
+      activePiece = Piece.randomPiece(t)
+    }
+    activePiece.draw()
+  }, 500)
+}
+
 let t = new Board(10, 20)
 t.draw()
 
@@ -420,7 +438,7 @@ document.addEventListener('keydown', (event) => {
       activePiece.undraw()
       if (activePiece.down()) {
         activePiece.lock()
-        activePiece = Piece.randomPiece(t) // Pieces are not aware of each other?
+        activePiece = Piece.randomPiece(t)
       }
       activePiece.draw()
       break
@@ -438,6 +456,3 @@ document.addEventListener('keydown', (event) => {
      return
   }
 })
-
-// Todo: Make game loop
-// Todo: Detect gameover
