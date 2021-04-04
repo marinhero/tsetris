@@ -72,3 +72,10 @@ body {
     display: none;
   }
 }
+
+@supports (translate: 0) {
+  .left-button,
+  .right-button {
+    rotate: -90deg;
+  }
+}
