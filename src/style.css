@@ -50,3 +50,9 @@ body {
 .button-row--bottom {
   text-align: center;
 }
+
+@media screen and (min-width: 768px) {
+  .controller {
+    display: none;
+  }
+}
