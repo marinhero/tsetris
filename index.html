@@ -7,12 +7,20 @@
     <link href="./src/style.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
     <link href="https://unpkg.com/nes.css@2.3.0/css/nes.min.css" rel="stylesheet" />
+    <script
+        src="https://cdn.jsdelivr.net/gh/marinhero/tsetris@d2b671ee640b7641317b1218c894e7332125d42a/dist/bundle.js"
+        type="text/javascript"></script>
     <title>TypeScript Tetris</title>
 </head>
 
 <body>
 <<<<<<< HEAD
+<<<<<<< HEAD
     <h1 class="title">TypeScript Tetris</h1>
+=======
+    <h1 class="title">TypeScript Tetris</h1>
+    <h1 class="scoreboard">Score: <span id="metric">0</span></h1>
+>>>>>>> update
     <ul>
         <li class="tutorial">
             Move around with
@@ -22,6 +30,7 @@
         </li>
         <li>Rotate with ↑</li>
     </ul>
+<<<<<<< HEAD
     <h1 class="scoreboard">Score: <span id="metric">0</span></h1>
     <canvas id="board" width="200" height="400"></canvas>
     <div class="controller disable-zoom">
@@ -56,3 +65,27 @@
 <!-- This project is dedicated to my grandma who loved Tetris -->
 >>>>>>> Update
 </html>
+=======
+    <canvas id="board" width="200" height="400"></canvas>
+    <script src="./dist/bundle.js"></script>
+    <div class="controller">
+        <div class="button-row button-row--top">
+            <span class="spacer">X</span>
+            <span class="button up-button" onClick="up()">↑</span>
+            <span class="spacer">X</span>
+        </div>
+        <div class="button-row button-row--middle">
+            <span class="left-button" onClick="left()">↑</span>
+            <span class="spacer">X</span>
+            <span class="right-button" onClick="right()">↓</span>
+        </div>
+        <div class="button-row button-row--bottom">
+            <span class="spacer">X</span>
+            <span class="down-button" onClick="down()">↓</span>
+            <span class="spacer">X</span>
+        </div>
+    </div>
+</body>
+<!-- In memory of my grandmother Josefina, who loved Tetris -->
+</html>
+>>>>>>> update
