@@ -20,3 +20,33 @@ body {
   height: 435px;
   width: 220px;
 }
+
+.tutorial > span {
+  display: inline-block;
+}
+
+.left-button,
+.right-button {
+  rotate: -90deg;
+}
+
+.controller {
+  display: flex;
+  flex-direction: column;
+  font-size: 32px;
+}
+
+.controller > .button-row > span {
+  display: inline-block;
+}
+
+.spacer {
+  color: white;
+  cursor: none;
+  pointer-events: none;
+}
+
+.button-row--top,
+.button-row--bottom {
+  text-align: center;
+}

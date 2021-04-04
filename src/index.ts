@@ -427,30 +427,48 @@ var p = Piece.randomPiece(t)
 p.draw()
 let activePiece: Piece = p
 
+const controller = window as any
+
+controller.up = () => {
+  activePiece.undraw()
+  activePiece.rotate()
+  activePiece.draw()
+}
+
+controller.down = () => {
+  activePiece.undraw()
+  if (activePiece.down()) {
+    activePiece.lock()
+    activePiece = Piece.randomPiece(t)
+  }
+  activePiece.draw()
+}
+
+controller.left = () => {
+  activePiece.undraw()
+  activePiece.left()
+  activePiece.draw()
+}
+
+controller.right = () => {
+  activePiece.undraw()
+  activePiece.right()
+  activePiece.draw()
+}
+
 document.addEventListener('keydown', (event) => {
   switch(event.key) {
     case 'ArrowUp':
-      activePiece.undraw()
-      activePiece.rotate()
-      activePiece.draw()
+      controller.up()
       break
     case 'ArrowDown':
-      activePiece.undraw()
-      if (activePiece.down()) {
-        activePiece.lock()
-        activePiece = Piece.randomPiece(t)
-      }
-      activePiece.draw()
+      controller.down()
       break
     case 'ArrowLeft':
-      activePiece.undraw()
-      activePiece.left()
-      activePiece.draw()
+      controller.left()
       break
     case 'ArrowRight':
-      activePiece.undraw()
-      activePiece.right()
-      activePiece.draw()
+      controller.right()
       break
     default:
      return
