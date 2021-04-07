@@ -2,6 +2,14 @@ body {
   align-items: center;
   display: flex;
   flex-direction: column;
+  touch-action: manipulation;
+
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .title {
@@ -27,13 +35,22 @@ body {
 
 .left-button,
 .right-button {
-  rotate: -90deg;
+  transform: rotate(-90deg);
+  -webkit-transform: rotate(-90deg);
+  -moz-transform:rotate(-90deg);
 }
 
 .controller {
   display: flex;
   flex-direction: column;
   font-size: 32px;
+
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .controller > .button-row > span {
@@ -44,6 +61,7 @@ body {
   color: white;
   cursor: none;
   pointer-events: none;
+  touch-action: none;
 }
 
 .button-row--top,

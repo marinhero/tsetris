@@ -1,5 +1,4 @@
 import * as _ from 'lodash'
-import './style.css'
 
 class Board {
   public b: Cell[][] = []
